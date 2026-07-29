@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel V3 · Leads</title>
+<style>
+:root{
+  --violeta:#7C3AED; --azul:#4361FF; --ciano:#22D3EE;
+  --preto:#0A0A16; --indigo:#231A52;
+  --grad:linear-gradient(135deg,var(--violeta),var(--azul) 55%,var(--ciano));
+  --ink:#EEF0FA; --ink-2:#A8AECF; --ink-3:#6E749B;
+  --line:rgba(168,174,207,.15); --card:rgba(255,255,255,.035);
+  --quente:#22D3EE; --morno:#F0A868; --frio:#6E749B;
+  --serif:Georgia,"Times New Roman",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:"SF Mono",ui-monospace,"Roboto Mono",Menlo,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:
+  radial-gradient(1200px 700px at 85% -12%,rgba(67,97,255,.13),transparent 60%),
+  radial-gradient(900px 600px at 0% 105%,rgba(124,58,237,.12),transparent 58%),
+  var(--preto);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 22px 70px}
+
+/* topo */
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:26px}
+.brand{display:flex;align-items:center;gap:12px}
+.mark{width:36px;height:36px;border-radius:9px;border:1.4px solid transparent;
+  background:linear-gradient(var(--preto),var(--preto)) padding-box,var(--grad) border-box;
+  display:grid;place-items:center;font-family:var(--serif);font-weight:700;font-size:14px}
+.mark span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tt{font-family:var(--serif);font-size:21px;font-weight:700;line-height:1.1}
+.tt small{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.22em;
+  color:var(--ink-3);text-transform:uppercase;margin-top:3px;font-weight:400}
+.ctrl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.seg{display:flex;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{background:none;border:none;color:var(--ink-3);font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.08em;padding:9px 13px;cursor:pointer;transition:.15s}
+.seg button:hover{color:var(--ink)}
+.seg button.on{background:var(--indigo);color:var(--ciano)}
+.rf{background:var(--card);border:1px solid var(--line);color:var(--ink-2);border-radius:10px;
+  padding:9px 14px;font-family:var(--mono);font-size:10.5px;cursor:pointer;letter-spacing:.06em}
+.rf:hover{color:var(--ink);border-color:var(--ink-3)}
+
+/* estados */
+.msg{padding:60px 20px;text-align:center;color:var(--ink-3);font-size:14.5px;line-height:1.6}
+.msg b{color:var(--ink);display:block;margin-bottom:6px;font-size:16px}
+
+/* kpi */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:26px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:17px 18px}
+.kpi .lb{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3)}
+.kpi .vl{font-family:var(--serif);font-size:34px;font-weight:700;line-height:1.05;margin-top:9px}
+.kpi .vl.g{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.kpi .sub{font-size:11.5px;color:var(--ink-3);margin-top:5px}
+
+/* blocos */
+.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px;margin-bottom:16px}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px}
+.box h3{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:400;margin-bottom:4px}
+.box .hint{font-size:12px;color:var(--ink-3);margin-bottom:18px;line-height:1.45}
+
+/* funil */
+.fstep{margin-bottom:11px}
+.fhead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;gap:10px}
+.fname{font-size:13px}
+.fnums{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);white-space:nowrap}
+.fnums b{color:var(--ink)}
+.ftrack{height:22px;background:rgba(168,174,207,.08);border-radius:5px;overflow:hidden;position:relative}
+.ffill{height:100%;background:var(--grad);border-radius:5px;transition:width .8s cubic-bezier(.25,.9,.25,1);min-width:2px}
+.fdrop{font-family:var(--mono);font-size:9.5px;color:var(--morno);margin-top:3px;text-align:right}
+.fdrop.zero{color:var(--ink-3);opacity:.4}
+.worst{border-left:2px solid var(--morno);padding-left:10px;margin-left:-12px}
+
+/* barras genéricas */
+.row{margin-bottom:13px}
+.rhead{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;gap:10px}
+.rhead span:last-child{font-family:var(--mono);font-size:11px;color:var(--ink-3);white-space:nowrap}
+.rtrack{height:7px;background:rgba(168,174,207,.09);border-radius:5px;overflow:hidden}
+.rfill{height:100%;border-radius:5px;background:var(--grad);transition:width .7s}
+.rfill.m{background:linear-gradient(90deg,#8B5CF6,var(--morno))}
+
+/* tabela */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:400;text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl td{padding:11px 10px;border-bottom:1px solid rgba(168,174,207,.07);vertical-align:middle}
+.tbl tr:hover td{background:rgba(124,58,237,.05)}
+.pill{display:inline-block;font-family:var(--mono);font-size:10.5px;padding:3px 9px;border-radius:20px;border:1px solid}
+.pill.q{color:var(--quente);border-color:rgba(34,211,238,.35);background:rgba(34,211,238,.07)}
+.pill.m{color:var(--morno);border-color:rgba(240,168,104,.3);background:rgba(240,168,104,.06)}
+.pill.f{color:var(--frio);border-color:var(--line)}
+.nm{font-weight:600}
+.sm{font-size:11.5px;color:var(--ink-3);margin-top:2px}
+.wa{color:#25D366;text-decoration:none;font-size:12px;white-space:nowrap}
+.wa:hover{text-decoration:underline}
+.tscroll{overflow-x:auto;margin:0 -20px;padding:0 20px}
+.empty{color:var(--ink-3);font-size:13px;padding:26px 0;text-align:center}
+.foot{font-family:var(--mono);font-size:9.5px;color:var(--ink-3);text-align:center;margin-top:32px;opacity:.55}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <div class="brand">
+      <div class="mark"><span>V3</span></div>
+      <div class="tt">Painel de Leads<small>Diagnóstico de Retorno</small></div>
+    </div>
+    <div class="ctrl">
+      <div class="seg" id="periodo">
+        <button data-d="7">7 dias</button>
+        <button data-d="30" class="on">30 dias</button>
+        <button data-d="0">Tudo</button>
+      </div>
+      <button class="rf" onclick="carregar()">↻ Atualizar</button>
+    </div>
+  </div>
+
+  <div id="estado" class="msg"><b>A carregar…</b>A ler os dados da folha.</div>
+  <div id="painel" style="display:none">
+
+    <div class="kpis" id="kpis"></div>
+
+    <div class="grid">
+      <div class="box">
+        <h3>Funil — onde as pessoas saem</h3>
+        <div class="hint">Cada barra é quantas pessoas distintas chegaram àquele ecrã. A percentagem à direita é a queda face ao passo anterior.</div>
+        <div id="funil"></div>
+      </div>
+
+      <div class="box">
+        <h3>Estágio dos leads</h3>
+        <div class="hint">Distribuição de quem completou o diagnóstico.</div>
+        <div id="estagios"></div>
+        <div style="height:22px"></div>
+        <h3>Bloqueio declarado</h3>
+        <div class="hint">A resposta à pergunta que roteia o programa.</div>
+        <div id="bloqueios"></div>
+      </div>
+    </div>
+
+    <div class="box" style="margin-bottom:16px">
+      <h3>Desempenho por origem</h3>
+      <div class="hint">Compara os anúncios: volume não é qualidade. Olha para o score médio e para a taxa de quentes, não só para o número de leads.</div>
+      <div class="tscroll">
+        <table class="tbl" id="origens"></table>
+      </div>
+    </div>
+
+    <div class="box">
+      <h3>Leads</h3>
+      <div class="hint">Ordenados por score. Os quentes (≥50%) aparecem primeiro.</div>
+      <div class="tscroll">
+        <table class="tbl" id="leads"></table>
+      </div>
+    </div>
+
+    <div class="foot" id="foot"></div>
+  </div>
+</div>
+
+<script>
+const ENDPOINT="https://script.google.com/macros/s/AKfycbwPVcQS64ERZ4KQZfHwX9iAoKvkb3JlbTMjivDGNupOEv2xZlxZ4bjgYq-LAAUW7TxmTg/exec";
+const CHAVE="v3painel-7kQx2m9";
+const LIMIAR=50;
+
+const PASSOS=[
+  {n:0,nome:"Abriu a página"},
+  {n:1,nome:"Pergunta 1 · Setor"},
+  {n:2,nome:"Pergunta 2 · Dimensão"},
+  {n:3,nome:"Pergunta 3 · Anúncios"},
+  {n:4,nome:"Pergunta 4 · Bloqueio"},
+  {n:5,nome:"Pergunta 5 · Prazo"},
+  {n:6,nome:"Pergunta 6 · Modelo"},
+  {n:7,nome:"Ecrã de contacto"},
+  {n:8,nome:"Concluiu"}
+];
+
+let DADOS=null, DIAS=30;
+
+document.querySelectorAll("#periodo button").forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll("#periodo button").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on"); DIAS=+b.dataset.d; if(DADOS) desenhar();
+  };
+});
+
+async function carregar(){
+  const est=document.getElementById("estado");
+  est.style.display="block"; est.innerHTML="<b>A carregar…</b>A ler os dados da folha.";
+  document.getElementById("painel").style.display="none";
+  try{
+    const r=await fetch(ENDPOINT+"?dados=painel&chave="+encodeURIComponent(CHAVE));
+    const j=await r.json();
+    if(!j.ok) throw new Error(j.erro||"resposta inválida");
+    DADOS=j; desenhar();
+    est.style.display="none";
+    document.getElementById("painel").style.display="block";
+  }catch(e){
+    est.innerHTML="<b>Não foi possível ler os dados</b>"+
+      "Verifica se a implantação do script está atualizada e se a chave coincide.<br><span style='font-size:12px;opacity:.7'>"+e.message+"</span>";
+  }
+}
+
+function dentroDoPeriodo(iso){
+  if(!DIAS) return true;
+  if(!iso) return false;
+  const d=new Date(iso);
+  return (Date.now()-d.getTime()) <= DIAS*86400000;
+}
+
+function desenhar(){
+  const leads=DADOS.leads.filter(l=>dentroDoPeriodo(l.data));
+  const eventos=DADOS.eventos.filter(e=>dentroDoPeriodo(e.data));
+  kpis(leads,eventos); funil(eventos); estagios(leads); bloqueios(leads); origens(leads,eventos); tabela(leads);
+  document.getElementById("foot").textContent=
+    "Atualizado às "+new Date().toLocaleTimeString("pt-PT")+" · "+leads.length+" leads · "+eventos.length+" eventos no período";
+}
+
+function sessoesNoPasso(eventos,n){
+  const s=new Set();
+  eventos.forEach(e=>{ if(e.passo===n) s.add(e.sessao); });
+  return s.size;
+}
+
+function kpis(leads,eventos){
+  const abriram=sessoesNoPasso(eventos,0);
+  const quentes=leads.filter(l=>l.scoreFinal>=LIMIAR);
+  const media=leads.length? Math.round(leads.reduce((a,l)=>a+l.scoreFinal,0)/leads.length):0;
+  const conv=abriram? Math.round(leads.length/abriram*100):0;
+  const porAtender=quentes.filter(l=>!String(l.conversa).trim()).length;
+
+  document.getElementById("kpis").innerHTML=[
+    card("Visitantes",abriram,"abriram o diagnóstico"),
+    card("Leads captados",leads.length,"completaram e deixaram contacto"),
+    card("Taxa de conclusão",conv+"%","dos visitantes chegam ao fim",true),
+    card("Leads quentes",quentes.length,"score ≥ "+LIMIAR+"%",true),
+    card("Por atender",porAtender,"quentes sem conversa iniciada")
+  ].join("");
+}
+function card(lb,vl,sub,g){
+  return '<div class="kpi"><div class="lb">'+lb+'</div><div class="vl'+(g?" g":"")+'">'+vl+'</div><div class="sub">'+sub+'</div></div>';
+}
+
+function funil(eventos){
+  const base=sessoesNoPasso(eventos,0)||1;
+  const conts=PASSOS.map(p=>sessoesNoPasso(eventos,p.n));
+  // maior queda
+  let pior=-1,piorV=0;
+  for(let i=1;i<conts.length;i++){
+    const perda=conts[i-1]-conts[i];
+    if(conts[i-1]>0 && perda>piorV){piorV=perda;pior=i;}
+  }
+  document.getElementById("funil").innerHTML=PASSOS.map((p,i)=>{
+    const c=conts[i], pct=Math.round(c/base*100);
+    const ant=i>0?conts[i-1]:null;
+    const perda=(ant!==null&&ant>0)?Math.round((ant-c)/ant*100):0;
+    return '<div class="fstep'+(i===pior?" worst":"")+'">'
+      +'<div class="fhead"><span class="fname">'+p.nome+'</span>'
+      +'<span class="fnums"><b>'+c+'</b> · '+pct+'%</span></div>'
+      +'<div class="ftrack"><div class="ffill" style="width:'+pct+'%"></div></div>'
+      +(i>0?'<div class="fdrop'+(perda<=0?" zero":"")+'">'+(perda>0?"−"+perda+"% aqui":"sem perda")+'</div>':'')
+      +'</div>';
+  }).join("")
+  + (pior>0? '<div style="font-size:12px;color:var(--morno);margin-top:14px;line-height:1.5">Maior queda em <b>'
+      +PASSOS[pior].nome+'</b> — '+piorV+' pessoas. É por aqui que se começa a melhorar.</div>' : '');
+}
+
+function estagios(leads){
+  const m={"01":0,"02":0,"03":0};
+  leads.forEach(l=>{const k=String(l.estagio).padStart(2,"0"); if(m[k]!==undefined)m[k]++;});
+  const nomes={"01":"Fundação","02":"Procura sem conversão","03":"Pronto para escalar"};
+  const tot=leads.length||1;
+  document.getElementById("estagios").innerHTML=Object.keys(m).map(k=>
+    barra(nomes[k], m[k], Math.round(m[k]/tot*100))
+  ).join("") || '<div class="empty">Sem dados</div>';
+}
+
+function bloqueios(leads){
+  const m={};
+  leads.forEach(l=>{const t=l.r[3]; if(t) m[t]=(m[t]||0)+1;});
+  const ent=Object.entries(m).sort((a,b)=>b[1]-a[1]);
+  const tot=leads.length||1;
+  document.getElementById("bloqueios").innerHTML= ent.length?
+    ent.map(([t,c])=>barra(curto(t), c, Math.round(c/tot*100),true)).join("")
+    : '<div class="empty">Sem dados</div>';
+}
+function curto(t){ return t.length>52? t.slice(0,50)+"…" : t; }
+
+function barra(nome,n,pct,alt){
+  return '<div class="row"><div class="rhead"><span>'+nome+'</span><span>'+n+' · '+pct+'%</span></div>'
+    +'<div class="rtrack"><div class="rfill'+(alt?" m":"")+'" style="width:'+pct+'%"></div></div></div>';
+}
+
+function origens(leads,eventos){
+  const m={};
+  eventos.filter(e=>e.passo===0).forEach(e=>{
+    const o=e.origem||"directo";
+    m[o]=m[o]||{visitas:new Set(),leads:0,soma:0,quentes:0};
+    m[o].visitas.add(e.sessao);
+  });
+  leads.forEach(l=>{
+    const o=l.origem||"directo";
+    m[o]=m[o]||{visitas:new Set(),leads:0,soma:0,quentes:0};
+    m[o].leads++; m[o].soma+=l.scoreFinal; if(l.scoreFinal>=LIMIAR)m[o].quentes++;
+  });
+  const ent=Object.entries(m).sort((a,b)=>b[1].leads-a[1].leads);
+  const t=document.getElementById("origens");
+  if(!ent.length){t.innerHTML='<tr><td class="empty">Ainda sem tráfego registado</td></tr>';return;}
+  t.innerHTML='<thead><tr><th>Origem</th><th>Visitas</th><th>Leads</th><th>Conclusão</th><th>Score médio</th><th>Quentes</th></tr></thead><tbody>'
+    +ent.map(([o,v])=>{
+      const vis=v.visitas.size, conv=vis?Math.round(v.leads/vis*100):0;
+      const med=v.leads?Math.round(v.soma/v.leads):0;
+      const pq=v.leads?Math.round(v.quentes/v.leads*100):0;
+      return '<tr><td class="nm">'+o+'</td><td>'+vis+'</td><td>'+v.leads+'</td><td>'+conv+'%</td>'
+        +'<td><span class="pill '+(med>=LIMIAR?"q":"m")+'">'+med+'%</span></td>'
+        +'<td>'+v.quentes+' <span style="color:var(--ink-3);font-size:11.5px">('+pq+'%)</span></td></tr>';
+    }).join("")+'</tbody>';
+}
+
+function tabela(leads){
+  const t=document.getElementById("leads");
+  if(!leads.length){t.innerHTML='<tr><td class="empty">Ainda sem leads no período selecionado</td></tr>';return;}
+  const ord=[...leads].sort((a,b)=>b.scoreFinal-a.scoreFinal || new Date(b.data)-new Date(a.data));
+  t.innerHTML='<thead><tr><th>Lead</th><th>Score</th><th>Estágio</th><th>Programa</th><th>Origem</th><th>Data</th><th></th></tr></thead><tbody>'
+    +ord.map(l=>{
+      const cls=l.scoreFinal>=LIMIAR?"q":(l.scoreFinal>=30?"m":"f");
+      const trav=l.tectos&&String(l.tectos).trim();
+      const d=l.data?new Date(l.data):null;
+      return '<tr>'
+        +'<td><div class="nm">'+(l.nome||"—")+'</div><div class="sm">'+(l.whatsapp||"")+'</div></td>'
+        +'<td><span class="pill '+cls+'">'+l.scoreFinal+'%</span>'
+          +(trav?'<div class="sm" style="color:var(--morno)">travado · bruto '+l.scoreBruto+'%</div>':'')+'</td>'
+        +'<td>'+(l.estagio||"—")+'</td>'
+        +'<td style="font-size:12.5px">'+(l.programa||"—")+'</td>'
+        +'<td style="font-size:12.5px;color:var(--ink-3)">'+(l.origem||"—")+'</td>'
+        +'<td class="sm">'+(d?d.toLocaleDateString("pt-PT")+"<br>"+d.toLocaleTimeString("pt-PT").slice(0,5):"—")+'</td>'
+        +'<td><a class="wa" href="'+linkWa(l.whatsapp)+'" target="_blank" rel="noopener">WhatsApp →</a></td>'
+        +'</tr>';
+    }).join("")+'</tbody>';
+}
+
+function linkWa(n){
+  let s=String(n||"").replace(/\D/g,"");
+  if(s.length===9) s="258"+s;
+  return "https://wa.me/"+s;
+}
+
+carregar();
+</script>
+</body>
+</html>
