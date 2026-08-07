@@ -112,9 +112,11 @@ body{font-family:var(--sans);background:
     </div>
     <div class="ctrl">
       <div class="seg" id="periodo">
-        <button data-d="7">7 dias</button>
-        <button data-d="30" class="on">30 dias</button>
-        <button data-d="0">Tudo</button>
+        <button data-p="hoje" class="on">Hoje</button>
+        <button data-p="ontem">Ontem</button>
+        <button data-p="7">7 dias</button>
+        <button data-p="30">30 dias</button>
+        <button data-p="0">Tudo</button>
       </div>
       <button class="rf" onclick="carregar()">↻ Atualizar</button>
     </div>
@@ -180,12 +182,12 @@ const PASSOS=[
   {n:8,nome:"Concluiu"}
 ];
 
-let DADOS=null, DIAS=30;
+let DADOS=null, PERIODO="hoje";
 
 document.querySelectorAll("#periodo button").forEach(b=>{
   b.onclick=()=>{
     document.querySelectorAll("#periodo button").forEach(x=>x.classList.remove("on"));
-    b.classList.add("on"); DIAS=+b.dataset.d; if(DADOS) desenhar();
+    b.classList.add("on"); PERIODO=b.dataset.p; if(DADOS) desenhar();
   };
 });
 
@@ -206,11 +208,24 @@ async function carregar(){
   }
 }
 
+function inicioDoDia(offset){
+  const d=new Date();
+  d.setHours(0,0,0,0);
+  d.setDate(d.getDate()-(offset||0));
+  return d.getTime();
+}
 function dentroDoPeriodo(iso){
-  if(!DIAS) return true;
+  if(PERIODO==="0") return true;
   if(!iso) return false;
-  const d=new Date(iso);
-  return (Date.now()-d.getTime()) <= DIAS*86400000;
+  const t=new Date(iso).getTime();
+  if(PERIODO==="hoje")  return t >= inicioDoDia(0);
+  if(PERIODO==="ontem") return t >= inicioDoDia(1) && t < inicioDoDia(0);
+  const dias=+PERIODO;
+  return (Date.now()-t) <= dias*86400000;
+}
+function nomePeriodo(){
+  return {hoje:"hoje", ontem:"ontem", "7":"nos últimos 7 dias",
+          "30":"nos últimos 30 dias", "0":"no total"}[PERIODO] || "";
 }
 
 function desenhar(){
@@ -218,7 +233,7 @@ function desenhar(){
   const eventos=DADOS.eventos.filter(e=>dentroDoPeriodo(e.data));
   kpis(leads,eventos); funil(eventos); estagios(leads); bloqueios(leads); origens(leads,eventos); tabela(leads);
   document.getElementById("foot").textContent=
-    "Atualizado às "+new Date().toLocaleTimeString("pt-PT")+" · "+leads.length+" leads · "+eventos.length+" eventos no período";
+    "Atualizado às "+new Date().toLocaleTimeString("pt-PT")+" · "+leads.length+" leads · "+eventos.length+" eventos "+nomePeriodo();
 }
 
 function sessoesNoPasso(eventos,n){
@@ -324,7 +339,7 @@ function origens(leads,eventos){
 
 function tabela(leads){
   const t=document.getElementById("leads");
-  if(!leads.length){t.innerHTML='<tr><td class="empty">Ainda sem leads no período selecionado</td></tr>';return;}
+  if(!leads.length){t.innerHTML='<tr><td class="empty">Sem leads '+nomePeriodo()+'</td></tr>';return;}
   const ord=[...leads].sort((a,b)=>b.scoreFinal-a.scoreFinal || new Date(b.data)-new Date(a.data));
   t.innerHTML='<thead><tr><th>Lead</th><th>Score</th><th>Estágio</th><th>Programa</th><th>Origem</th><th>Data</th><th></th></tr></thead><tbody>'
     +ord.map(l=>{
