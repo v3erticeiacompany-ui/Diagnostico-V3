@@ -128,6 +128,42 @@
   .tl-txt{font-size:14.5px;line-height:1.5;color:var(--ink-2);padding-top:4px}
   .softnote{font-size:13.5px;color:var(--ink-3);line-height:1.55;margin-top:20px;font-style:italic}
 
+
+  /* ---- diagnóstico: percurso da receita ---- */
+  .hook{font-family:var(--serif);font-size:clamp(19px,4.4vw,24px);font-weight:700;line-height:1.32;
+    letter-spacing:-.008em;margin-bottom:30px;padding-left:16px;border-left:2px solid transparent;
+    background:linear-gradient(var(--preto),var(--preto)) padding-box,var(--grad) border-box}
+  .hook em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+  .flowlead{font-size:15px;color:var(--ink-2);margin-bottom:20px;line-height:1.55}
+  .flow{position:relative;margin-bottom:12px}
+  .flow-pipe{display:flex;align-items:center;gap:0;margin-bottom:22px;padding:0 4px}
+  .seg-pipe{flex:1;height:5px;background:linear-gradient(90deg,rgba(124,58,237,.85),rgba(67,97,255,.55));border-radius:3px}
+  .seg-pipe.s2{background:linear-gradient(90deg,rgba(67,97,255,.55),rgba(67,97,255,.32))}
+  .seg-pipe.s3{background:linear-gradient(90deg,rgba(67,97,255,.32),rgba(34,211,238,.18))}
+  .leak{width:26px;height:26px;flex:none;border-radius:50%;border:1px solid rgba(240,168,104,.45);
+    background:rgba(240,168,104,.10);display:grid;place-items:center;position:relative;z-index:2}
+  .leak::after{content:"";width:7px;height:7px;border-radius:50%;background:#F0A868;
+    box-shadow:0 0 10px rgba(240,168,104,.7)}
+  .flow-caps{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-bottom:26px;padding:0 2px}
+
+  .leakrow{display:flex;gap:14px;align-items:flex-start;padding:15px 0;border-bottom:1px solid var(--line)}
+  .leakrow:last-of-type{border-bottom:none}
+  .leakdot{width:9px;height:9px;border-radius:50%;background:#F0A868;flex:none;margin-top:7px;
+    box-shadow:0 0 0 4px rgba(240,168,104,.13)}
+  .leaktxt strong{display:block;font-size:15.5px;font-weight:600;margin-bottom:3px;color:var(--ink)}
+  .leaktxt span{font-size:14px;color:var(--ink-3);line-height:1.5}
+  .leaknote{font-size:13.5px;color:var(--morno,#F0A868);margin:16px 0 0;line-height:1.5;font-style:italic}
+
+  .bridge{font-size:15.5px;line-height:1.6;color:var(--ink-2);margin:26px 0 0}
+  .bridge b{color:var(--ink)}
+  .turn{font-family:var(--serif);font-size:18px;font-weight:700;line-height:1.4;
+    margin:26px 0 -8px;letter-spacing:-.005em}
+  .thesis{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin:28px 0}
+  .thesis .big{font-family:var(--serif);font-size:19px;font-weight:700;line-height:1.35;margin-bottom:10px}
+  .thesis .big em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .thesis p{font-size:14.5px;line-height:1.6;color:var(--ink-3)}
   .internal{margin-top:34px;border-top:1px solid var(--line);padding-top:18px}
   .internal summary{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--ink-3);cursor:pointer;text-transform:uppercase}
   .internal summary:hover{color:var(--ink-2)}
@@ -180,7 +216,7 @@ src="https://www.facebook.com/tr?id=410215811636402&ev=PageView&noscript=1"/></n
       <li><span class="n">2 —</span><span>Porque é que o seu negócio não cresce;</span></li>
       <li><span class="n">3 —</span><span>O Método V3 para aumentar o faturamento.</span></li>
     </ul>
-    <div class="nav"><button class="btn" onclick="go(0)">Quero o meu diagnóstico gratuito →</button></div>
+    <div class="nav"><button class="btn" onclick="go(0)">Começar o meu Diagnóstico →</button></div>
     <p class="micro">6 perguntas · menos de 2 minutos</p>
   </section>
 
@@ -208,7 +244,7 @@ src="https://www.facebook.com/tr?id=410215811636402&ev=PageView&noscript=1"/></n
 
     <div class="nav">
       <button class="btn ghost" onclick="back()">← Voltar</button>
-      <button class="btn" id="go-res" disabled onclick="finish()">Libertar o meu diagnóstico →</button>
+      <button class="btn" id="go-res" disabled onclick="finish()">Ver Resultados →</button>
     </div>
     <p class="privacy">🔒 Os seus dados estão seguros e não são partilhados.<br>Usamos apenas para lhe enviar o diagnóstico e agendar a sua sessão.</p>
   </section>
@@ -420,38 +456,57 @@ function linkWa(){ return `https://wa.me/${WA}?text=${encodeURIComponent(MSG_WA)
 /* ============ OS 3 ECRÃS DE RESULTADO ============ */
 const TIMELINE=`
   <div class="timeline">
-    <div class="tl-title">O que acontece a seguir</div>
-    <div class="tl-step first"><div class="tl-n">01</div><div class="tl-txt">Recebe o diagnóstico no WhatsApp</div></div>
-    <div class="tl-step"><div class="tl-n">02</div><div class="tl-txt">Conversa com um especialista da V3, que vai entender o momento atual do seu negócio</div></div>
-    <div class="tl-step"><div class="tl-n">03</div><div class="tl-txt">Sessão de diagnóstico completa, com o mapa do que mudar e por que ordem</div></div>
+    <div class="tl-title">Próxima etapa</div>
+    <div class="tl-step first"><div class="tl-n">01</div><div class="tl-txt">Começamos por perceber onde está e onde quer chegar</div></div>
+    <div class="tl-step"><div class="tl-n">02</div><div class="tl-txt">Fazemos o diagnóstico, onde encontramos o furo e medimos o que custa</div></div>
+    <div class="tl-step"><div class="tl-n">03</div><div class="tl-txt">Plano de ação com prioridades para aumentar o faturamento nos próximos 6 meses</div></div>
   </div>`;
 
 function ecraPadrao(nome){
   return `
-  <h2 class="rtitle">O seu diagnóstico está pronto.</h2>
-  <p class="rintro"><b>${nome}</b>, com base nas suas respostas, identificámos <b>3 pontos</b> que estão a travar a receita do seu negócio:</p>
+  <h2 class="rtitle">${nome}, o seu diagnóstico está pronto.</h2>
 
-  <div class="pbox">
-    <div class="pnum">01</div>
-    <div class="pname">Onde está a perder contactos</div>
-    <div class="pdesc">Entre o momento em que alguém demonstra interesse e o momento da venda.</div>
-  </div>
-  <div class="pbox">
-    <div class="pnum">02</div>
-    <div class="pname">Porque é que os clientes perguntam o preço e desaparecem</div>
-    <div class="pdesc">Quase nunca é o preço. É o que falta antes de ele chegar a essa pergunta.</div>
-  </div>
-  <div class="pbox">
-    <div class="pnum">03</div>
-    <div class="pname">Por onde começar</div>
-    <div class="pdesc">A ordem das prioridades para os próximos 90 dias.</div>
+  <p class="hook">Não é o seu marketing que está a falhar.<br><em>É a estrutura por trás dele.</em></p>
+
+  <p class="flowlead">Toda a receita percorre o mesmo caminho — e escapa sempre nos mesmos três sítios:</p>
+
+  <div class="flow">
+    <div class="flow-pipe">
+      <div class="seg-pipe"></div><div class="leak"></div>
+      <div class="seg-pipe s2"></div><div class="leak"></div>
+      <div class="seg-pipe s3"></div><div class="leak"></div>
+    </div>
+    <div class="flow-caps"><span>Entrada</span><span>Caminho</span><span>Saída</span></div>
   </div>
 
-  <div class="divide"></div>
-  <p class="handoff"><b>O diagnóstico completo é entregue no WhatsApp.</b></p>
-  <p class="handoff-sub">É lá que lhe explicamos cada ponto e agendamos a sua sessão.</p>
-  <a class="cta" href="${linkWa()}" target="_blank" rel="noopener" onclick="cliqueWhats()">${IC_WA} Receber o meu diagnóstico no WhatsApp →</a>
-  ${TIMELINE}`;
+  <div class="leakrow">
+    <div class="leakdot"></div>
+    <div class="leaktxt"><strong>01 · A entrada</strong><span>Atrai pessoas, mas não as certas.</span></div>
+  </div>
+  <div class="leakrow">
+    <div class="leakdot"></div>
+    <div class="leaktxt"><strong>02 · O caminho</strong><span>Chegam contactos e param no meio.</span></div>
+  </div>
+  <div class="leakrow">
+    <div class="leakdot"></div>
+    <div class="leaktxt"><strong>03 · A saída</strong><span>Compram uma vez e desaparecem.</span></div>
+  </div>
+  <p class="leaknote">Um furo custa caro. Dois anulam qualquer investimento em anúncios.</p>
+
+  <p class="bridge"><b>E é aqui que quase todos erram:</b> tentam resolver isto com mais tráfego.</p>
+
+  <div class="thesis">
+    <div class="big">O tráfego pago não cria receita.<br><em>Amplifica o que já existe.</em></div>
+    <p>Se a estrutura tem furos, mais anúncios só aumentam o desperdício de dinheiro.</p>
+  </div>
+
+  <p class="turn">E só há uma forma de saber onde exatamente está o problema:</p>
+
+  ${TIMELINE}
+
+  <div style="height:26px"></div>
+  <a class="cta" href="${linkWa()}" target="_blank" rel="noopener" onclick="cliqueWhats()">${IC_WA} Agendar o meu Diagnóstico →</a>
+  <p class="handoff-sub" style="margin-top:14px">Sem compromisso.</p>`;
 }
 
 function ecraFaturacao(nome){
@@ -462,7 +517,7 @@ function ecraFaturacao(nome){
   <div class="divide"></div>
   <p class="handoff"><b>Preparámos um resumo com o que faz sentido para si agora.</b></p>
   <div style="height:16px"></div>
-  <a class="cta" href="${linkWa()}" target="_blank" rel="noopener" onclick="cliqueWhats()">${IC_WA} Receber o meu diagnóstico no WhatsApp →</a>
+  <a class="cta" href="${linkWa()}" target="_blank" rel="noopener" onclick="cliqueWhats()">${IC_WA} Agendar o meu Diagnóstico →</a>
   <p class="softnote">Quando o seu negócio estiver noutra fase, fale connosco — o convite fica de pé.</p>`;
 }
 
